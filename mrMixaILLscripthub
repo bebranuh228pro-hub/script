@@ -50,7 +50,21 @@ local SpeedEnabled = false
 local NoclipEnabled = false
 local InfJumpEnabled = false
 
-local function CreateButton(text, ypos, callback)
+local buttonInstances = {}
+local dragging = false
+local dragInput, dragStart, startPos
+
+local function updateButtonColor(button, enabled)
+    if enabled then
+        button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        button.UIStroke.Color = Color3.fromRGB(0, 200, 0)
+    else
+        button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        button.UIStroke.Color = Color3.fromRGB(0, 170, 255)
+    end
+end
+
+local function CreateButton(text, ypos, callback, enabledRef)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 260, 0, 50)
     button.Position = UDim2.new(0, 20, 0, ypos)
@@ -71,9 +85,68 @@ local function CreateButton(text, ypos, callback)
     stroke.Color = Color3.fromRGB(0, 170, 255)
     stroke.Parent = button
     
-    button.MouseButton1Click:Connect(callback)
+    button.MouseButton1Click:Connect(function()
+        callback()
+        updateButtonColor(button, enabledRef[1])
+    end)
+    
+    table.insert(buttonInstances, {button = button, enabledRef = enabledRef})
     return button
 end
+
+MainButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainButton.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+MainButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        MainButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        MainFrame.Position = UDim2.new(0, startPos.X.Offset + delta.X + 70, 0, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        MainButton.Position = UDim2.new(0, startPos.X.Offset + delta.X - 70, 0, startPos.Y.Offset + delta.Y)
+    end
+end)
 
 MainButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
@@ -94,7 +167,7 @@ CreateButton("FLY [ВКЛ/ВЫКЛ]", 20, function()
             end
         end
     end
-end)
+end, {FlyEnabled})
 
 CreateButton("SPEED [ВКЛ/ВЫКЛ]", 80, function()
     SpeedEnabled = not SpeedEnabled
@@ -103,15 +176,15 @@ CreateButton("SPEED [ВКЛ/ВЫКЛ]", 80, function()
     else
         Player.Character.Humanoid.WalkSpeed = 16
     end
-end)
+end, {SpeedEnabled})
 
 CreateButton("NOCLIP [ВКЛ/ВЫКЛ]", 140, function()
     NoclipEnabled = not NoclipEnabled
-end)
+end, {NoclipEnabled})
 
 CreateButton("INF JUMP [ВКЛ/ВЫКЛ]", 200, function()
     InfJumpEnabled = not InfJumpEnabled
-end)
+end, {InfJumpEnabled})
 
 CreateButton("ESP [ВКЛ/ВЫКЛ]", 260, function()
     for _, player in pairs(game:GetService("Players"):GetPlayers()) do
@@ -122,11 +195,11 @@ CreateButton("ESP [ВКЛ/ВЫКЛ]", 260, function()
             highlight.Parent = player.Character
         end
     end
-end)
+end, {false})
 
 CreateButton("TP TO SPAWN", 320, function()
     Player.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0)
-end)
+end, {false})
 
 UIS.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.Space and FlyEnabled then
