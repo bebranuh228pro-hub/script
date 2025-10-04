@@ -13,6 +13,7 @@ ScreenGui.Name = "OmegaSuperGUI"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+local AccessGranted = false
 local MainButton = Instance.new("TextButton")
 MainButton.Size = UDim2.new(0, 60, 0, 60)
 MainButton.Position = UDim2.new(0, 20, 0, 20)
@@ -27,6 +28,65 @@ MainButton.Parent = ScreenGui
 local UICorner1 = Instance.new("UICorner")
 UICorner1.CornerRadius = UDim.new(1, 0)
 UICorner1.Parent = MainButton
+
+local KeyFrame = Instance.new("Frame")
+KeyFrame.Size = UDim2.new(0, 300, 0, 150)
+KeyFrame.Position = UDim2.new(0, 90, 0, 20)
+KeyFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+KeyFrame.Visible = false
+KeyFrame.ZIndex = 2
+KeyFrame.Parent = ScreenGui
+
+local KeyUICorner = Instance.new("UICorner")
+KeyUICorner.CornerRadius = UDim.new(0, 12)
+KeyUICorner.Parent = KeyFrame
+
+local KeyUIStroke = Instance.new("UIStroke")
+KeyUIStroke.Thickness = 2
+KeyUIStroke.Color = Color3.fromRGB(0, 170, 255)
+KeyUIStroke.Parent = KeyFrame
+
+local KeyLabel = Instance.new("TextLabel")
+KeyLabel.Size = UDim2.new(0, 260, 0, 30)
+KeyLabel.Position = UDim2.new(0, 20, 0, 15)
+KeyLabel.BackgroundTransparency = 1
+KeyLabel.Text = "ВВЕДИТЕ КЛЮЧ:"
+KeyLabel.TextColor3 = Color3.new(1, 1, 1)
+KeyLabel.TextSize = 18
+KeyLabel.Font = Enum.Font.GothamBold
+KeyLabel.ZIndex = 3
+KeyLabel.Parent = KeyFrame
+
+local KeyTextBox = Instance.new("TextBox")
+KeyTextBox.Size = UDim2.new(0, 260, 0, 40)
+KeyTextBox.Position = UDim2.new(0, 20, 0, 50)
+KeyTextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+KeyTextBox.TextColor3 = Color3.new(1, 1, 1)
+KeyTextBox.Text = ""
+KeyTextBox.PlaceholderText = "Введите код доступа..."
+KeyTextBox.TextSize = 16
+KeyTextBox.Font = Enum.Font.Gotham
+KeyTextBox.ZIndex = 3
+KeyTextBox.Parent = KeyFrame
+
+local KeyButton = Instance.new("TextButton")
+KeyButton.Size = UDim2.new(0, 260, 0, 40)
+KeyButton.Position = UDim2.new(0, 20, 0, 100)
+KeyButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+KeyButton.TextColor3 = Color3.new(1, 1, 1)
+KeyButton.Text = "ПОДТВЕРДИТЬ"
+KeyButton.TextSize = 18
+KeyButton.Font = Enum.Font.GothamBold
+KeyButton.ZIndex = 3
+KeyButton.Parent = KeyFrame
+
+local KeyCorner1 = Instance.new("UICorner")
+KeyCorner1.CornerRadius = UDim.new(0, 8)
+KeyCorner1.Parent = KeyTextBox
+
+local KeyCorner2 = Instance.new("UICorner")
+KeyCorner2.CornerRadius = UDim.new(0, 8)
+KeyCorner2.Parent = KeyButton
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 300, 0, 400)
@@ -50,6 +110,11 @@ local SpeedEnabled = false
 local NoclipEnabled = false
 local InfJumpEnabled = false
 local EspEnabled = false
+
+local validCodes = {"aboba"}
+for i = 4508, 4701 do
+    table.insert(validCodes, tostring(i))
+end
 
 local buttonInstances = {}
 local highlights = {}
@@ -96,6 +161,16 @@ local function CreateButton(text, ypos, callback, enabledRef)
     return button
 end
 
+local function CheckKey(key)
+    key = tostring(key):lower()
+    for _, validKey in ipairs(validCodes) do
+        if key == validKey:lower() then
+            return true
+        end
+    end
+    return false
+end
+
 MainButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
@@ -119,7 +194,27 @@ UIS.InputChanged:Connect(function(input)
     if input == dragInput and dragging then
         local delta = input.Position - dragStart
         MainButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        KeyFrame.Position = UDim2.new(0, startPos.X.Offset + delta.X + 70, 0, startPos.Y.Offset + delta.Y)
         MainFrame.Position = UDim2.new(0, startPos.X.Offset + delta.X + 70, 0, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+KeyFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = KeyFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+KeyFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
     end
 end)
 
@@ -145,14 +240,42 @@ end)
 UIS.InputChanged:Connect(function(input)
     if input == dragInput and dragging then
         local delta = input.Position - dragStart
+        KeyFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         MainButton.Position = UDim2.new(0, startPos.X.Offset + delta.X - 70, 0, startPos.Y.Offset + delta.Y)
     end
 end)
 
 MainButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
+    if AccessGranted then
+        MainFrame.Visible = not MainFrame.Visible
+        KeyFrame.Visible = false
+    else
+        KeyFrame.Visible = not KeyFrame.Visible
+        MainFrame.Visible = false
+    end
 end)
+
+KeyButton.MouseButton1Click:Connect(function()
+    local enteredKey = KeyTextBox.Text
+    if CheckKey(enteredKey) then
+        AccessGranted = true
+        KeyFrame.Visible = false
+        MainFrame.Visible = true
+        KeyTextBox.Text = ""
+    else
+        KeyTextBox.Text = ""
+        KeyTextBox.PlaceholderText = "НЕВЕРНЫЙ КОД!"
+        wait(1)
+        KeyTextBox.PlaceholderText = "Введите код доступа..."
+    end
+end)
+
+KeyTextBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        KeyButton.MouseButton1Click:Connect()
+    end
+end
 
 CreateButton("FLY [ВКЛ/ВЫКЛ]", 20, function()
     FlyEnabled = not FlyEnabled
