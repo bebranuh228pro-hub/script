@@ -4,6 +4,12 @@ local UIS = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 
+-- Сохраняем состояние доступа между перезапусками
+local AccessGranted = false
+if _G.OmegaScriptAccess then
+    AccessGranted = _G.OmegaScriptAccess
+end
+
 if CoreGui:FindFirstChild("OmegaSuperGUI") then
     CoreGui.OmegaSuperGUI:Destroy()
 end
@@ -13,7 +19,6 @@ ScreenGui.Name = "OmegaSuperGUI"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local AccessGranted = false
 local MainButton = Instance.new("TextButton")
 MainButton.Size = UDim2.new(0, 60, 0, 60)
 MainButton.Position = UDim2.new(0, 20, 0, 20)
@@ -92,7 +97,7 @@ local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 300, 0, 400)
 MainFrame.Position = UDim2.new(0, 90, 0, 20)
 MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-MainFrame.Visible = false
+MainFrame.Visible = AccessGranted
 MainFrame.ZIndex = 2
 MainFrame.Parent = ScreenGui
 
@@ -260,6 +265,7 @@ KeyButton.MouseButton1Click:Connect(function()
     local enteredKey = KeyTextBox.Text
     if CheckKey(enteredKey) then
         AccessGranted = true
+        _G.OmegaScriptAccess = true
         KeyFrame.Visible = false
         MainFrame.Visible = true
         KeyTextBox.Text = ""
