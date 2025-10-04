@@ -275,7 +275,7 @@ KeyTextBox.FocusLost:Connect(function(enterPressed)
     if enterPressed then
         KeyButton.MouseButton1Click:Connect()
     end
-end
+end)
 
 CreateButton("FLY [ВКЛ/ВЫКЛ]", 20, function()
     FlyEnabled = not FlyEnabled
