@@ -120,8 +120,8 @@ local keyWindow = Instance.new("Frame")
 keyWindow.Name = "KeyWindow"
 keyWindow.Size = windowSize
 keyWindow.Position = UDim2.new(0.5, -200, 0.5, -125)
-keyWindow.BackgroundColor3 = Color3.new(0, 0, 0)
-keyWindow.BackgroundTransparency = 0.1
+keyWindow.BackgroundColor3 = Color3.new(0.05, 0.05, 0.05)
+keyWindow.BackgroundTransparency = 0
 keyWindow.Visible = false
 keyWindow.ZIndex = 20
 
@@ -152,7 +152,7 @@ local keyInput = Instance.new("TextBox")
 keyInput.Name = "KeyInput"
 keyInput.Size = UDim2.new(0.8, 0, 0, isMobile and 50 or 40)
 keyInput.Position = UDim2.new(0.1, 0, 0.3, 0)
-keyInput.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+keyInput.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 keyInput.TextColor3 = white
 keyInput.PlaceholderText = "Enter Key..."
 keyInput.Text = ""
@@ -209,8 +209,8 @@ local scriptPanel = Instance.new("Frame")
 scriptPanel.Name = "ScriptPanel"
 scriptPanel.Size = panelSize
 scriptPanel.Position = UDim2.new(0.5, -175, 0.5, -200)
-scriptPanel.BackgroundColor3 = Color3.new(0, 0, 0)
-scriptPanel.BackgroundTransparency = 0.1
+scriptPanel.BackgroundColor3 = Color3.new(0.05, 0.05, 0.05)
+scriptPanel.BackgroundTransparency = 0
 scriptPanel.Visible = false
 scriptPanel.ZIndex = 30
 
@@ -265,6 +265,10 @@ local flyEnabled = false
 local speedGUI = nil
 local speedEnabled = false
 local originalSpeed = 16
+local noclipEnabled = false
+local noclipConnection = nil
+local infJumpEnabled = false
+local antiAFKEnabled = false
 
 local functions = {"fly", "speed", "noclip", "inf jump", "anti AFK"}
 
@@ -279,30 +283,10 @@ local function toggleFly()
         local speaker = game:GetService("Players").LocalPlayer
         if speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid") then
             local humanoid = speaker.Character:FindFirstChildWhichIsA("Humanoid")
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
             humanoid.PlatformStand = false
-        end
-        
-        if speaker.Character and speaker.Character:FindFirstChild("Animate") then
-            speaker.Character.Animate.Disabled = false
         end
     else
         flyEnabled = true
-        mainButton.Visible = false
         scriptPanel.Visible = false
         
         local main = Instance.new("ScreenGui")
@@ -311,45 +295,45 @@ local function toggleFly()
         
         local Frame = Instance.new("Frame")
         Frame.Parent = main
-        Frame.BackgroundColor3 = Color3.fromRGB(163, 255, 137)
-        Frame.BorderColor3 = Color3.fromRGB(103, 221, 213)
+        Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        Frame.BorderColor3 = neonBlue
         Frame.Position = UDim2.new(0.1, 0, 0.3, 0)
-        Frame.Size = UDim2.new(0, 190, 0, 57)
+        Frame.Size = UDim2.new(0, 200, 0, 100)
         Frame.Active = true
         Frame.Draggable = true
 
-        local onof = Instance.new("TextButton")
-        onof.Parent = Frame
-        onof.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
-        onof.Position = UDim2.new(0.7, 0, 0.5, 0)
-        onof.Size = UDim2.new(0, 56, 0, 28)
-        onof.Font = Enum.Font.SourceSans
-        onof.Text = "MrM FLY"
-        onof.TextColor3 = Color3.fromRGB(255, 255, 255)
-        onof.TextSize = 14.000
-        onof.MouseButton1Click:Connect(function()
+        local flyLabel = Instance.new("TextLabel")
+        flyLabel.Parent = Frame
+        flyLabel.Size = UDim2.new(1, 0, 0, 30)
+        flyLabel.Position = UDim2.new(0, 0, 0, 0)
+        flyLabel.BackgroundTransparency = 1
+        flyLabel.Text = "MrM FLY V3"
+        flyLabel.TextColor3 = neonBlue
+        flyLabel.TextScaled = true
+        flyLabel.Font = Enum.Font.SciFi
+
+        local closeFlyButton = Instance.new("TextButton")
+        closeFlyButton.Parent = Frame
+        closeFlyButton.Size = UDim2.new(0, 30, 0, 30)
+        closeFlyButton.Position = UDim2.new(1, -35, 0, 5)
+        closeFlyButton.BackgroundColor3 = Color3.new(1, 0, 0)
+        closeFlyButton.TextColor3 = white
+        closeFlyButton.Text = "X"
+        closeFlyButton.TextScaled = true
+        closeFlyButton.MouseButton1Click:Connect(function()
             toggleFly()
         end)
 
-        local TextLabel = Instance.new("TextLabel")
-        TextLabel.Parent = Frame
-        TextLabel.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
-        TextLabel.Position = UDim2.new(0.1, 0, 0, 0)
-        TextLabel.Size = UDim2.new(0, 100, 0, 28)
-        TextLabel.Font = Enum.Font.SourceSans
-        TextLabel.Text = "MrM FLY V3"
-        TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        TextLabel.TextScaled = true
-        TextLabel.TextSize = 14.000
-        TextLabel.TextWrapped = true
-
         flyGUI = main
         
-        game:GetService("StarterGui"):SetCore("SendNotification", { 
-            Title = "MrM FLY V3";
-            Text = "FLY Activated!";
-            Duration = 3;
-        })
+        local speaker = game:GetService("Players").LocalPlayer
+        local character = speaker.Character
+        if character then
+            local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+            if humanoid then
+                humanoid.PlatformStand = true
+            end
+        end
     end
 end
 
@@ -376,7 +360,7 @@ local function toggleSpeed()
         frame.Parent = screenGui
         frame.Size = UDim2.new(0, 300, 0, 200)
         frame.Position = UDim2.new(0.5, -150, 0.5, -100)
-        frame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        frame.BackgroundColor3 = Color3.new(0.05, 0.05, 0.05)
         frame.AnchorPoint = Vector2.new(0.5, 0.5)
         frame.Active = true
         frame.Draggable = true
@@ -389,11 +373,11 @@ local function toggleSpeed()
         title.Parent = frame
         title.Size = UDim2.new(1, 0, 0, 40)
         title.Position = UDim2.new(0, 0, 0, 0)
-        title.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-        title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        title.BackgroundTransparency = 1
+        title.TextColor3 = neonBlue
         title.Text = "MrM SPEED V1"
         title.TextScaled = true
-        title.Font = Enum.Font.GothamBold
+        title.Font = Enum.Font.SciFi
         title.BorderSizePixel = 0
 
         local textBox = Instance.new("TextBox")
@@ -403,9 +387,9 @@ local function toggleSpeed()
         textBox.PlaceholderText = "Enter Speed"
         textBox.Text = "50"
         textBox.TextScaled = true
-        textBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-        textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-        textBox.Font = Enum.Font.Gotham
+        textBox.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+        textBox.TextColor3 = white
+        textBox.Font = Enum.Font.SciFi
         textBox.BorderSizePixel = 0
 
         local uiCornerTextBox = Instance.new("UICorner")
@@ -418,9 +402,9 @@ local function toggleSpeed()
         button.Position = UDim2.new(0.1, 0, 0.7, 0)
         button.Text = "Set Speed"
         button.TextScaled = true
-        button.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
-        button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        button.Font = Enum.Font.GothamBold
+        button.BackgroundColor3 = neonBlue
+        button.TextColor3 = white
+        button.Font = Enum.Font.SciFi
         button.BorderSizePixel = 0
 
         local uiCornerButton = Instance.new("UICorner")
@@ -442,8 +426,8 @@ local function toggleSpeed()
         closeButton.Parent = frame
         closeButton.Size = UDim2.new(0, 30, 0, 30)
         closeButton.Position = UDim2.new(1, -35, 0, 5)
-        closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-        closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        closeButton.BackgroundColor3 = Color3.new(1, 0, 0)
+        closeButton.TextColor3 = white
         closeButton.Text = "X"
         closeButton.TextScaled = true
         closeButton.MouseButton1Click:Connect(function()
@@ -457,6 +441,60 @@ local function toggleSpeed()
             originalSpeed = character:FindFirstChildWhichIsA("Humanoid").WalkSpeed
             updateSpeed()
         end
+    end
+end
+
+local function toggleNoclip()
+    if noclipEnabled then
+        if noclipConnection then
+            noclipConnection:Disconnect()
+            noclipConnection = nil
+        end
+        noclipEnabled = false
+    else
+        noclipEnabled = true
+        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
+            if player.Character then
+                for _, part in pairs(player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+    end
+end
+
+local function toggleInfJump()
+    if infJumpEnabled then
+        infJumpEnabled = false
+    else
+        infJumpEnabled = true
+        local connection
+        connection = UserInputService.JumpRequest:Connect(function()
+            if infJumpEnabled and player.Character then
+                local humanoid = player.Character:FindFirstChildWhichIsA("Humanoid")
+                if humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end
+        end)
+    end
+end
+
+local function toggleAntiAFK()
+    if antiAFKEnabled then
+        antiAFKEnabled = false
+    else
+        antiAFKEnabled = true
+        local virtualUser = game:GetService("VirtualUser")
+        game:GetService("Players").LocalPlayer.Idled:Connect(function()
+            if antiAFKEnabled then
+                virtualUser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+                wait(1)
+                virtualUser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            end
+        end)
     end
 end
 
@@ -503,13 +541,40 @@ for i, funcName in ipairs(functions) do
                 button.Text = "SPEED OFF"
             end
         end)
-    else
+    elseif funcName == "noclip" then
         button.MouseButton1Click:Connect(function()
+            toggleNoclip()
             buttonStates[funcName] = not buttonStates[funcName]
             if buttonStates[funcName] then
                 button.BackgroundColor3 = green
+                button.Text = "NOCLIP ON"
             else
                 button.BackgroundColor3 = gray
+                button.Text = "NOCLIP OFF"
+            end
+        end)
+    elseif funcName == "inf jump" then
+        button.MouseButton1Click:Connect(function()
+            toggleInfJump()
+            buttonStates[funcName] = not buttonStates[funcName]
+            if buttonStates[funcName] then
+                button.BackgroundColor3 = green
+                button.Text = "INF JUMP ON"
+            else
+                button.BackgroundColor3 = gray
+                button.Text = "INF JUMP OFF"
+            end
+        end)
+    elseif funcName == "anti AFK" then
+        button.MouseButton1Click:Connect(function()
+            toggleAntiAFK()
+            buttonStates[funcName] = not buttonStates[funcName]
+            if buttonStates[funcName] then
+                button.BackgroundColor3 = green
+                button.Text = "ANTI AFK ON"
+            else
+                button.BackgroundColor3 = gray
+                button.Text = "ANTI AFK OFF"
             end
         end)
     end
