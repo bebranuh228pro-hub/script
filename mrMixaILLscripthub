@@ -24,6 +24,10 @@ MainButton.Font = Enum.Font.GothamBold
 MainButton.ZIndex = 2
 MainButton.Parent = ScreenGui
 
+local UICorner1 = Instance.new("UICorner")
+UICorner1.CornerRadius = UDim.new(1, 0)
+UICorner1.Parent = MainButton
+
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 300, 0, 400)
 MainFrame.Position = UDim2.new(0, 90, 0, 20)
@@ -46,10 +50,10 @@ local SpeedEnabled = false
 local NoclipEnabled = false
 local InfJumpEnabled = false
 
-local function CreateButton(text, position, callback)
+local function CreateButton(text, ypos, callback)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 260, 0, 50)
-    button.Position = position
+    button.Position = UDim2.new(0, 20, 0, ypos)
     button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     button.TextColor3 = Color3.new(1, 1, 1)
     button.Text = text
@@ -75,7 +79,7 @@ MainButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 20), function()
+CreateButton("FLY [ВКЛ/ВЫКЛ]", 20, function()
     FlyEnabled = not FlyEnabled
     if FlyEnabled then
         local bodyVelocity = Instance.new("BodyVelocity")
@@ -92,7 +96,7 @@ CreateButton(UDim2.new(0, 20, 0, 20), function()
     end
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 80), function()
+CreateButton("SPEED [ВКЛ/ВЫКЛ]", 80, function()
     SpeedEnabled = not SpeedEnabled
     if SpeedEnabled then
         Player.Character.Humanoid.WalkSpeed = 50
@@ -101,15 +105,15 @@ CreateButton(UDim2.new(0, 20, 0, 80), function()
     end
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 140), function()
+CreateButton("NOCLIP [ВКЛ/ВЫКЛ]", 140, function()
     NoclipEnabled = not NoclipEnabled
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 200), function()
+CreateButton("INF JUMP [ВКЛ/ВЫКЛ]", 200, function()
     InfJumpEnabled = not InfJumpEnabled
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 260), function()
+CreateButton("ESP [ВКЛ/ВЫКЛ]", 260, function()
     for _, player in pairs(game:GetService("Players"):GetPlayers()) do
         if player ~= Player and player.Character then
             local highlight = Instance.new("Highlight")
@@ -120,7 +124,7 @@ CreateButton(UDim2.new(0, 20, 0, 260), function()
     end
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 320), function()
+CreateButton("TP TO SPAWN", 320, function()
     Player.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0)
 end)
 
