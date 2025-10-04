@@ -14,7 +14,8 @@ local panelSize = isMobile and UDim2.new(0, 350, 0, 400) or UDim2.new(0, 300, 0,
 local neonBlue = Color3.fromRGB(0, 150, 255)
 local white = Color3.fromRGB(255, 255, 255)
 local green = Color3.fromRGB(0, 255, 0)
-local gray = Color3.fromRGB(100, 100, 100)
+local gray = Color3.fromRGB(200, 200, 200)
+local lightGray = Color3.fromRGB(240, 240, 240)
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "MrMIXAILLUniversal"
@@ -88,7 +89,7 @@ local mainButton = Instance.new("TextButton")
 mainButton.Name = "MainButton"
 mainButton.Size = buttonSize
 mainButton.Position = UDim2.new(0.5, -40, 0.5, -40)
-mainButton.BackgroundColor3 = Color3.new(0, 0, 0)
+mainButton.BackgroundColor3 = lightGray
 mainButton.Text = ""
 mainButton.BorderSizePixel = 0
 mainButton.ZIndex = 10
@@ -106,7 +107,7 @@ letterM.Size = UDim2.new(0, isMobile and 40 or 30, 0, isMobile and 50 or 40)
 letterM.Position = UDim2.new(0.5, isMobile and -20 or -15, 0.5, isMobile and -25 or -20)
 letterM.BackgroundTransparency = 1
 letterM.Text = "M"
-letterM.TextColor3 = white
+letterM.TextColor3 = neonBlue
 letterM.TextScaled = true
 letterM.Font = Enum.Font.SciFi
 letterM.TextStrokeTransparency = 0
@@ -120,7 +121,7 @@ local keyWindow = Instance.new("Frame")
 keyWindow.Name = "KeyWindow"
 keyWindow.Size = windowSize
 keyWindow.Position = UDim2.new(0.5, -200, 0.5, -125)
-keyWindow.BackgroundColor3 = Color3.new(0.05, 0.05, 0.05)
+keyWindow.BackgroundColor3 = lightGray
 keyWindow.BackgroundTransparency = 0
 keyWindow.Visible = false
 keyWindow.ZIndex = 20
@@ -152,8 +153,8 @@ local keyInput = Instance.new("TextBox")
 keyInput.Name = "KeyInput"
 keyInput.Size = UDim2.new(0.8, 0, 0, isMobile and 50 or 40)
 keyInput.Position = UDim2.new(0.1, 0, 0.3, 0)
-keyInput.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-keyInput.TextColor3 = white
+keyInput.BackgroundColor3 = white
+keyInput.TextColor3 = Color3.new(0, 0, 0)
 keyInput.PlaceholderText = "Enter Key..."
 keyInput.Text = ""
 keyInput.ClearTextOnFocus = false
@@ -168,7 +169,7 @@ local getKeyButton = Instance.new("TextButton")
 getKeyButton.Name = "GetKeyButton"
 getKeyButton.Size = UDim2.new(0.8, 0, 0, isMobile and 50 or 40)
 getKeyButton.Position = UDim2.new(0.1, 0, 0.6, 0)
-getKeyButton.BackgroundColor3 = Color3.new(0, 0.2, 0.4)
+getKeyButton.BackgroundColor3 = neonBlue
 getKeyButton.TextColor3 = white
 getKeyButton.Text = "GET KEY"
 getKeyButton.Font = Enum.Font.SciFi
@@ -209,7 +210,7 @@ local scriptPanel = Instance.new("Frame")
 scriptPanel.Name = "ScriptPanel"
 scriptPanel.Size = panelSize
 scriptPanel.Position = UDim2.new(0.5, -175, 0.5, -200)
-scriptPanel.BackgroundColor3 = Color3.new(0.05, 0.05, 0.05)
+scriptPanel.BackgroundColor3 = lightGray
 scriptPanel.BackgroundTransparency = 0
 scriptPanel.Visible = false
 scriptPanel.ZIndex = 30
@@ -287,7 +288,6 @@ local function toggleFly()
         end
     else
         flyEnabled = true
-        scriptPanel.Visible = false
         
         local main = Instance.new("ScreenGui")
         main.Name = "MrMFlyGUI"
@@ -295,7 +295,7 @@ local function toggleFly()
         
         local Frame = Instance.new("Frame")
         Frame.Parent = main
-        Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        Frame.BackgroundColor3 = lightGray
         Frame.BorderColor3 = neonBlue
         Frame.Position = UDim2.new(0.1, 0, 0.3, 0)
         Frame.Size = UDim2.new(0, 200, 0, 100)
@@ -360,7 +360,7 @@ local function toggleSpeed()
         frame.Parent = screenGui
         frame.Size = UDim2.new(0, 300, 0, 200)
         frame.Position = UDim2.new(0.5, -150, 0.5, -100)
-        frame.BackgroundColor3 = Color3.new(0.05, 0.05, 0.05)
+        frame.BackgroundColor3 = lightGray
         frame.AnchorPoint = Vector2.new(0.5, 0.5)
         frame.Active = true
         frame.Draggable = true
@@ -387,8 +387,8 @@ local function toggleSpeed()
         textBox.PlaceholderText = "Enter Speed"
         textBox.Text = "50"
         textBox.TextScaled = true
-        textBox.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-        textBox.TextColor3 = white
+        textBox.BackgroundColor3 = white
+        textBox.TextColor3 = Color3.new(0, 0, 0)
         textBox.Font = Enum.Font.SciFi
         textBox.BorderSizePixel = 0
 
@@ -504,7 +504,7 @@ for i, funcName in ipairs(functions) do
     button.Size = UDim2.new(0.8, 0, 0, isMobile and 50 or 40)
     button.Position = UDim2.new(0.1, 0, 0.15 + (i * 0.14), 0)
     button.BackgroundColor3 = gray
-    button.TextColor3 = white
+    button.TextColor3 = Color3.new(0, 0, 0)
     button.Text = funcName:upper()
     button.Font = Enum.Font.SciFi
     button.TextScaled = true
