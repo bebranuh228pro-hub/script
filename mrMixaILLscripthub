@@ -2,19 +2,26 @@ local Player = game:GetService("Players").LocalPlayer
 local Mouse = Player:GetMouse()
 local UIS = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+
+if CoreGui:FindFirstChild("OmegaSuperGUI") then
+    CoreGui.OmegaSuperGUI:Destroy()
+end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "OmegaSuperGUI"
 ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local MainButton = Instance.new("TextButton")
 MainButton.Size = UDim2.new(0, 60, 0, 60)
 MainButton.Position = UDim2.new(0, 20, 0, 20)
 MainButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 MainButton.Text = "M"
-MainButton.TextColor3 = Color3.white
+MainButton.TextColor3 = Color3.new(1, 1, 1)
 MainButton.TextSize = 24
 MainButton.Font = Enum.Font.GothamBold
+MainButton.ZIndex = 2
 MainButton.Parent = ScreenGui
 
 local MainFrame = Instance.new("Frame")
@@ -22,6 +29,7 @@ MainFrame.Size = UDim2.new(0, 300, 0, 400)
 MainFrame.Position = UDim2.new(0, 90, 0, 20)
 MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 MainFrame.Visible = false
+MainFrame.ZIndex = 2
 MainFrame.Parent = ScreenGui
 
 local UICorner = Instance.new("UICorner")
@@ -36,16 +44,18 @@ UIStroke.Parent = MainFrame
 local FlyEnabled = false
 local SpeedEnabled = false
 local NoclipEnabled = false
+local InfJumpEnabled = false
 
 local function CreateButton(text, position, callback)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 260, 0, 50)
     button.Position = position
     button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    button.TextColor3 = Color3.white
+    button.TextColor3 = Color3.new(1, 1, 1)
     button.Text = text
     button.TextSize = 18
     button.Font = Enum.Font.GothamSemibold
+    button.ZIndex = 3
     button.Parent = MainFrame
     
     local corner = Instance.new("UICorner")
@@ -65,22 +75,24 @@ MainButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 20), "FLY [ВКЛ/ВЫКЛ]", function()
+CreateButton(UDim2.new(0, 20, 0, 20), function()
     FlyEnabled = not FlyEnabled
     if FlyEnabled then
         local bodyVelocity = Instance.new("BodyVelocity")
         bodyVelocity.Name = "OmegaFly"
         bodyVelocity.Velocity = Vector3.new(0, 0, 0)
-        bodyVelocity.MaxForce = Vector3.new(0, 9.81 * Player.Character.Humanoid:GetMass(), 0)
+        bodyVelocity.MaxForce = Vector3.new(0, 9.81 * Player.Character.Humanoid:GetMass() * 2, 0)
         bodyVelocity.Parent = Player.Character.HumanoidRootPart
     else
-        if Player.Character.HumanoidRootPart:FindFirstChild("OmegaFly") then
-            Player.Character.HumanoidRootPart.OmegaFly:Destroy()
+        if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+            if Player.Character.HumanoidRootPart:FindFirstChild("OmegaFly") then
+                Player.Character.HumanoidRootPart.OmegaFly:Destroy()
+            end
         end
     end
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 80), "SPEED [ВКЛ/ВЫКЛ]", function()
+CreateButton(UDim2.new(0, 20, 0, 80), function()
     SpeedEnabled = not SpeedEnabled
     if SpeedEnabled then
         Player.Character.Humanoid.WalkSpeed = 50
@@ -89,20 +101,15 @@ CreateButton(UDim2.new(0, 20, 0, 80), "SPEED [ВКЛ/ВЫКЛ]", function()
     end
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 140), "NOCLIP [ВКЛ/ВЫКЛ]", function()
+CreateButton(UDim2.new(0, 20, 0, 140), function()
     NoclipEnabled = not NoclipEnabled
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 200), "INF JUMP [ВКЛ/ВЫКЛ]", function()
-    local infJump = true
-    game:GetService("UserInputService").JumpRequest:Connect(function()
-        if infJump then
-            Player.Character.Humanoid:ChangeState("Jumping")
-        end
-    end)
+CreateButton(UDim2.new(0, 20, 0, 200), function()
+    InfJumpEnabled = not InfJumpEnabled
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 260), "ESP [ВКЛ/ВЫКЛ]", function()
+CreateButton(UDim2.new(0, 20, 0, 260), function()
     for _, player in pairs(game:GetService("Players"):GetPlayers()) do
         if player ~= Player and player.Character then
             local highlight = Instance.new("Highlight")
@@ -113,11 +120,33 @@ CreateButton(UDim2.new(0, 20, 0, 260), "ESP [ВКЛ/ВЫКЛ]", function()
     end
 end)
 
-CreateButton(UDim2.new(0, 20, 0, 320), "TP TO SPAWN", function()
+CreateButton(UDim2.new(0, 20, 0, 320), function()
     Player.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0)
 end)
 
-game:GetService("RunService").Stepped:Connect(function()
+UIS.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Space and FlyEnabled then
+        if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+            if Player.Character.HumanoidRootPart:FindFirstChild("OmegaFly") then
+                Player.Character.HumanoidRootPart.OmegaFly.Velocity = Vector3.new(0, 50, 0)
+            end
+        end
+    elseif input.KeyCode == Enum.KeyCode.LeftShift and FlyEnabled then
+        if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+            if Player.Character.HumanoidRootPart:FindFirstChild("OmegaFly") then
+                Player.Character.HumanoidRootPart.OmegaFly.Velocity = Vector3.new(0, -50, 0)
+            end
+        end
+    end
+end)
+
+UIS.JumpRequest:Connect(function()
+    if InfJumpEnabled then
+        Player.Character.Humanoid:ChangeState("Jumping")
+    end
+end)
+
+RunService.Stepped:Connect(function()
     if NoclipEnabled and Player.Character then
         for _, part in pairs(Player.Character:GetDescendants()) do
             if part:IsA("BasePart") then
@@ -126,13 +155,3 @@ game:GetService("RunService").Stepped:Connect(function()
         end
     end
 end)
-
-if FlyEnabled then
-    local flyConnection = UIS.InputBegan:Connect(function(input)
-        if input.KeyCode == Enum.KeyCode.Space then
-            Player.Character.HumanoidRootPart.OmegaFly.Velocity = Vector3.new(0, 50, 0)
-        elseif input.KeyCode == Enum.KeyCode.LeftShift then
-            Player.Character.HumanoidRootPart.OmegaFly.Velocity = Vector3.new(0, -50, 0)
-        end
-    end)
-end
