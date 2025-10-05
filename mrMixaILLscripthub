@@ -3,118 +3,185 @@ local Mouse = Player:GetMouse()
 local UIS = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
--- Сохраняем состояние доступа между перезапусками
 local AccessGranted = false
 if _G.OmegaScriptAccess then
     AccessGranted = _G.OmegaScriptAccess
 end
 
-if CoreGui:FindFirstChild("OmegaSuperGUI") then
-    CoreGui.OmegaSuperGUI:Destroy()
+if CoreGui:FindFirstChild("MixaILLGUI") then
+    CoreGui.MixaILLGUI:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "OmegaSuperGUI"
+ScreenGui.Name = "MixaILLGUI"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+-- Главная кнопка M
 local MainButton = Instance.new("TextButton")
 MainButton.Size = UDim2.new(0, 60, 0, 60)
 MainButton.Position = UDim2.new(0, 20, 0, 20)
-MainButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+MainButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 MainButton.Text = "M"
-MainButton.TextColor3 = Color3.new(1, 1, 1)
+MainButton.TextColor3 = Color3.fromRGB(255, 255, 0)
 MainButton.TextSize = 24
 MainButton.Font = Enum.Font.GothamBold
 MainButton.ZIndex = 2
 MainButton.Parent = ScreenGui
 
 local UICorner1 = Instance.new("UICorner")
-UICorner1.CornerRadius = UDim.new(1, 0)
+UICorner1.CornerRadius = UDim.new(0.2, 0)
 UICorner1.Parent = MainButton
 
+-- Рамка для ввода ключа (видимая сразу)
 local KeyFrame = Instance.new("Frame")
-KeyFrame.Size = UDim2.new(0, 300, 0, 150)
+KeyFrame.Size = UDim2.new(0, 320, 0, 180)
 KeyFrame.Position = UDim2.new(0, 90, 0, 20)
-KeyFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-KeyFrame.Visible = false
+KeyFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+KeyFrame.BackgroundTransparency = 0
+KeyFrame.Visible = not AccessGranted
 KeyFrame.ZIndex = 2
 KeyFrame.Parent = ScreenGui
 
 local KeyUICorner = Instance.new("UICorner")
-KeyUICorner.CornerRadius = UDim.new(0, 12)
+KeyUICorner.CornerRadius = UDim.new(0.1, 0)
 KeyUICorner.Parent = KeyFrame
 
-local KeyUIStroke = Instance.new("UIStroke")
-KeyUIStroke.Thickness = 2
-KeyUIStroke.Color = Color3.fromRGB(0, 170, 255)
-KeyUIStroke.Parent = KeyFrame
+-- Желтая обводка рамки
+local KeyFrameStroke = Instance.new("UIStroke")
+KeyFrameStroke.Thickness = 2
+KeyFrameStroke.Color = Color3.fromRGB(255, 255, 0)
+KeyFrameStroke.Transparency = 0.3
+KeyFrameStroke.Parent = KeyFrame
+
+-- Кнопка свертывания для KeyFrame
+local KeyMinimizeButton = Instance.new("TextButton")
+KeyMinimizeButton.Size = UDim2.new(0, 120, 0, 30)
+KeyMinimizeButton.Position = UDim2.new(0, 20, 0, 15)
+KeyMinimizeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+KeyMinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyMinimizeButton.Text = "MrM1xaILL hub -"
+KeyMinimizeButton.TextSize = 14
+KeyMinimizeButton.Font = Enum.Font.GothamBold
+KeyMinimizeButton.ZIndex = 3
+KeyMinimizeButton.Parent = KeyFrame
+
+local KeyMinimizeCorner = Instance.new("UICorner")
+KeyMinimizeCorner.CornerRadius = UDim.new(0.1, 0)
+KeyMinimizeCorner.Parent = KeyMinimizeButton
 
 local KeyLabel = Instance.new("TextLabel")
-KeyLabel.Size = UDim2.new(0, 260, 0, 30)
-KeyLabel.Position = UDim2.new(0, 20, 0, 15)
+KeyLabel.Size = UDim2.new(0, 280, 0, 40)
+KeyLabel.Position = UDim2.new(0, 20, 0, 50)
 KeyLabel.BackgroundTransparency = 1
-KeyLabel.Text = "ВВЕДИТЕ КЛЮЧ:"
-KeyLabel.TextColor3 = Color3.new(1, 1, 1)
-KeyLabel.TextSize = 18
+KeyLabel.Text = "ВВЕДИТЕ КЛЮЧ ДОСТУПА"
+KeyLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+KeyLabel.TextSize = 16
 KeyLabel.Font = Enum.Font.GothamBold
 KeyLabel.ZIndex = 3
 KeyLabel.Parent = KeyFrame
 
+-- Поле ввода ключа
 local KeyTextBox = Instance.new("TextBox")
-KeyTextBox.Size = UDim2.new(0, 260, 0, 40)
-KeyTextBox.Position = UDim2.new(0, 20, 0, 50)
-KeyTextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-KeyTextBox.TextColor3 = Color3.new(1, 1, 1)
+KeyTextBox.Size = UDim2.new(0, 280, 0, 45)
+KeyTextBox.Position = UDim2.new(0, 20, 0, 95)
+KeyTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+KeyTextBox.TextColor3 = Color3.fromRGB(255, 255, 0)
 KeyTextBox.Text = ""
 KeyTextBox.PlaceholderText = "Введите код доступа..."
+KeyTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 100)
 KeyTextBox.TextSize = 16
 KeyTextBox.Font = Enum.Font.Gotham
 KeyTextBox.ZIndex = 3
 KeyTextBox.Parent = KeyFrame
 
+-- Кнопка активации
 local KeyButton = Instance.new("TextButton")
-KeyButton.Size = UDim2.new(0, 260, 0, 40)
-KeyButton.Position = UDim2.new(0, 20, 0, 100)
-KeyButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-KeyButton.TextColor3 = Color3.new(1, 1, 1)
-KeyButton.Text = "ПОДТВЕРДИТЬ"
+KeyButton.Size = UDim2.new(0, 280, 0, 45)
+KeyButton.Position = UDim2.new(0, 20, 0, 150)
+KeyButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+KeyButton.TextColor3 = Color3.fromRGB(255, 255, 0)
+KeyButton.Text = "АКТИВИРОВАТЬ"
 KeyButton.TextSize = 18
 KeyButton.Font = Enum.Font.GothamBold
 KeyButton.ZIndex = 3
 KeyButton.Parent = KeyFrame
 
 local KeyCorner1 = Instance.new("UICorner")
-KeyCorner1.CornerRadius = UDim.new(0, 8)
+KeyCorner1.CornerRadius = UDim.new(0.1, 0)
 KeyCorner1.Parent = KeyTextBox
 
 local KeyCorner2 = Instance.new("UICorner")
-KeyCorner2.CornerRadius = UDim.new(0, 8)
+KeyCorner2.CornerRadius = UDim.new(0.1, 0)
 KeyCorner2.Parent = KeyButton
 
+-- Обводки для текстового поля и кнопки
+local KeyTextBoxStroke = Instance.new("UIStroke")
+KeyTextBoxStroke.Thickness = 1
+KeyTextBoxStroke.Color = Color3.fromRGB(255, 255, 0)
+KeyTextBoxStroke.Parent = KeyTextBox
+
+local KeyButtonStroke = Instance.new("UIStroke")
+KeyButtonStroke.Thickness = 1
+KeyButtonStroke.Color = Color3.fromRGB(255, 255, 0)
+KeyButtonStroke.Parent = KeyButton
+
+-- Основное меню (изначально скрыто)
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Size = UDim2.new(0, 320, 0, 450)
 MainFrame.Position = UDim2.new(0, 90, 0, 20)
-MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-MainFrame.Visible = AccessGranted
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.BackgroundTransparency = 0
+MainFrame.Visible = false
 MainFrame.ZIndex = 2
 MainFrame.Parent = ScreenGui
 
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.CornerRadius = UDim.new(0.1, 0)
 UICorner.Parent = MainFrame
 
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Thickness = 2
-UIStroke.Color = Color3.fromRGB(0, 170, 255)
-UIStroke.Parent = MainFrame
+-- Желтая обводка основного меню
+local MainFrameStroke = Instance.new("UIStroke")
+MainFrameStroke.Thickness = 2
+MainFrameStroke.Color = Color3.fromRGB(255, 255, 0)
+MainFrameStroke.Transparency = 0.3
+MainFrameStroke.Parent = MainFrame
 
+-- Кнопка свертывания для MainFrame
+local MainMinimizeButton = Instance.new("TextButton")
+MainMinimizeButton.Size = UDim2.new(0, 120, 0, 30)
+MainMinimizeButton.Position = UDim2.new(0, 20, 0, 10)
+MainMinimizeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+MainMinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MainMinimizeButton.Text = "MrM1xaILL hub -"
+MainMinimizeButton.TextSize = 14
+MainMinimizeButton.Font = Enum.Font.GothamBold
+MainMinimizeButton.ZIndex = 3
+MainMinimizeButton.Parent = MainFrame
+
+local MainMinimizeCorner = Instance.new("UICorner")
+MainMinimizeCorner.CornerRadius = UDim.new(0.1, 0)
+MainMinimizeCorner.Parent = MainMinimizeButton
+
+-- Свернутое состояние MainFrame
+local MainFrameMinimized = false
+local OriginalMainFrameSize = UDim2.new(0, 320, 0, 450)
+local MinimizedMainFrameSize = UDim2.new(0, 160, 0, 50)
+
+-- Переменные функций
 local FlyEnabled = false
 local SpeedEnabled = false
 local NoclipEnabled = false
 local InfJumpEnabled = false
 local EspEnabled = false
+local AntiAFKEnabled = false
+
+-- Переменные для полета
+local FlySpeed = 50
+local FlyBodyGyro
+local FlyBodyVelocity
 
 local validCodes = {"aboba"}
 for i = 4508, 4701 do
@@ -128,34 +195,29 @@ local dragInput, dragStart, startPos
 
 local function updateButtonColor(button, enabled)
     if enabled then
-        button.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-        button.UIStroke.Color = Color3.fromRGB(0, 255, 0)
+        button.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
     else
-        button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-        button.UIStroke.Color = Color3.fromRGB(0, 170, 255)
+        button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        button.TextColor3 = Color3.fromRGB(255, 255, 150)
     end
 end
 
 local function CreateButton(text, ypos, callback, enabledRef)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 260, 0, 50)
+    button.Size = UDim2.new(0, 280, 0, 55)
     button.Position = UDim2.new(0, 20, 0, ypos)
-    button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    button.TextColor3 = Color3.fromRGB(255, 255, 150)
     button.Text = text
-    button.TextSize = 18
+    button.TextSize = 16
     button.Font = Enum.Font.GothamSemibold
     button.ZIndex = 3
     button.Parent = MainFrame
     
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 8)
+    corner.CornerRadius = UDim.new(0.1, 0)
     corner.Parent = button
-    
-    local stroke = Instance.new("UIStroke")
-    stroke.Thickness = 2
-    stroke.Color = Color3.fromRGB(0, 170, 255)
-    stroke.Parent = button
     
     button.MouseButton1Click:Connect(function()
         callback()
@@ -176,6 +238,213 @@ local function CheckKey(key)
     return false
 end
 
+-- Функция свертывания/развертывания MainFrame
+local function ToggleMainFrame()
+    MainFrameMinimized = not MainFrameMinimized
+    
+    if MainFrameMinimized then
+        -- Свернуть
+        MainFrame.Size = MinimizedMainFrameSize
+        MainMinimizeButton.Text = "MrM1xaILL hub +"
+        
+        -- Скрыть все кнопки
+        for _, btnData in pairs(buttonInstances) do
+            btnData.button.Visible = false
+        end
+    else
+        -- Развернуть
+        MainFrame.Size = OriginalMainFrameSize
+        MainMinimizeButton.Text = "MrM1xaILL hub -"
+        
+        -- Показать все кнопки
+        for _, btnData in pairs(buttonInstances) do
+            btnData.button.Visible = true
+        end
+    end
+end
+
+-- Функция свертывания/развертывания KeyFrame
+local KeyFrameMinimized = false
+local OriginalKeyFrameSize = UDim2.new(0, 320, 0, 180)
+local MinimizedKeyFrameSize = UDim2.new(0, 160, 0, 50)
+
+local function ToggleKeyFrame()
+    KeyFrameMinimized = not KeyFrameMinimized
+    
+    if KeyFrameMinimized then
+        -- Свернуть
+        KeyFrame.Size = MinimizedKeyFrameSize
+        KeyMinimizeButton.Text = "MrM1xaILL hub +"
+        KeyLabel.Visible = false
+        KeyTextBox.Visible = false
+        KeyButton.Visible = false
+    else
+        -- Развернуть
+        KeyFrame.Size = OriginalKeyFrameSize
+        KeyMinimizeButton.Text = "MrM1xaILL hub -"
+        KeyLabel.Visible = true
+        KeyTextBox.Visible = true
+        KeyButton.Visible = true
+    end
+end
+
+-- Улучшенная система полета с управлением от камеры
+local function ToggleFly()
+    FlyEnabled = not FlyEnabled
+    
+    if FlyEnabled then
+        local character = Player.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            FlyBodyGyro = Instance.new("BodyGyro")
+            FlyBodyGyro.Name = "MixaILLFlyGyro"
+            FlyBodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
+            FlyBodyGyro.P = 10000
+            FlyBodyGyro.D = 1000
+            FlyBodyGyro.CFrame = character.HumanoidRootPart.CFrame
+            FlyBodyGyro.Parent = character.HumanoidRootPart
+            
+            FlyBodyVelocity = Instance.new("BodyVelocity")
+            FlyBodyVelocity.Name = "MixaILLFlyVelocity"
+            FlyBodyVelocity.Velocity = Vector3.new(0, 0, 0)
+            FlyBodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
+            FlyBodyVelocity.Parent = character.HumanoidRootPart
+        end
+    else
+        if FlyBodyGyro then
+            FlyBodyGyro:Destroy()
+            FlyBodyGyro = nil
+        end
+        if FlyBodyVelocity then
+            FlyBodyVelocity:Destroy()
+            FlyBodyVelocity = nil
+        end
+    end
+end
+
+-- Управление полетом относительно камеры
+local flyConnection
+flyConnection = RunService.Heartbeat:Connect(function()
+    if not FlyEnabled or not FlyBodyVelocity or not FlyBodyGyro then return end
+    
+    local character = Player.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+    
+    local cam = workspace.CurrentCamera
+    FlyBodyGyro.CFrame = CFrame.new(character.HumanoidRootPart.Position, character.HumanoidRootPart.Position + cam.CFrame.LookVector)
+    
+    local moveDirection = Vector3.new(0, 0, 0)
+    local moving = false
+    
+    if UIS:IsKeyDown(Enum.KeyCode.W) then
+        moveDirection = moveDirection + cam.CFrame.LookVector
+        moving = true
+    end
+    if UIS:IsKeyDown(Enum.KeyCode.S) then
+        moveDirection = moveDirection - cam.CFrame.LookVector
+        moving = true
+    end
+    if UIS:IsKeyDown(Enum.KeyCode.A) then
+        moveDirection = moveDirection - cam.CFrame.RightVector
+        moving = true
+    end
+    if UIS:IsKeyDown(Enum.KeyCode.D) then
+        moveDirection = moveDirection + cam.CFrame.RightVector
+        moving = true
+    end
+    if UIS:IsKeyDown(Enum.KeyCode.Space) then
+        moveDirection = moveDirection + Vector3.new(0, 1, 0)
+        moving = true
+    end
+    if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then
+        moveDirection = moveDirection + Vector3.new(0, -1, 0)
+        moving = true
+    end
+    
+    if moving then
+        moveDirection = moveDirection.Unit
+        FlyBodyVelocity.Velocity = moveDirection * FlySpeed
+    else
+        FlyBodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    end
+end)
+
+-- Anti-AFK система
+local function ToggleAntiAFK()
+    AntiAFKEnabled = not AntiAFKEnabled
+    
+    if AntiAFKEnabled then
+        local VirtualUser = game:GetService("VirtualUser")
+        Player.Idled:Connect(function()
+            if AntiAFKEnabled then
+                VirtualUser:CaptureController()
+                VirtualUser:ClickButton2(Vector2.new())
+            end
+        end)
+    end
+end
+
+-- Noclip система
+local noclipConnection
+noclipConnection = RunService.Stepped:Connect(function()
+    if NoclipEnabled and Player.Character then
+        for _, part in pairs(Player.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- Infinite Jump система
+local infJumpConnection
+infJumpConnection = UIS.JumpRequest:Connect(function()
+    if InfJumpEnabled and Player.Character and Player.Character:FindFirstChild("Humanoid") then
+        Player.Character.Humanoid:ChangeState("Jumping")
+    end
+end)
+
+-- ESP система
+local function ToggleESP()
+    EspEnabled = not EspEnabled
+    
+    if EspEnabled then
+        for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= Player and player.Character then
+                local highlight = Instance.new("Highlight")
+                highlight.FillColor = Color3.fromRGB(255, 255, 0)
+                highlight.OutlineColor = Color3.fromRGB(255, 200, 0)
+                highlight.FillTransparency = 0.5
+                highlight.OutlineTransparency = 0
+                highlight.Parent = player.Character
+                highlights[player] = highlight
+            end
+        end
+    else
+        for player, highlight in pairs(highlights) do
+            if highlight then
+                highlight:Destroy()
+            end
+        end
+        highlights = {}
+    end
+end
+
+-- Speed система
+local function ToggleSpeed()
+    SpeedEnabled = not SpeedEnabled
+    
+    if SpeedEnabled then
+        if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+            Player.Character.Humanoid.WalkSpeed = 50
+        end
+    else
+        if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+            Player.Character.Humanoid.WalkSpeed = 16
+        end
+    end
+end
+
+-- Drag functionality
 MainButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
@@ -204,61 +473,23 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
-KeyFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = KeyFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-KeyFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
-
-MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
-
-UIS.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        KeyFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        MainButton.Position = UDim2.new(0, startPos.X.Offset + delta.X - 70, 0, startPos.Y.Offset + delta.Y)
-    end
-end)
-
+-- UI Interactions
 MainButton.MouseButton1Click:Connect(function()
     if AccessGranted then
         MainFrame.Visible = not MainFrame.Visible
         KeyFrame.Visible = false
     else
         KeyFrame.Visible = not KeyFrame.Visible
-        MainFrame.Visible = false
     end
+end)
+
+-- Кнопки свертывания
+KeyMinimizeButton.MouseButton1Click:Connect(function()
+    ToggleKeyFrame()
+end)
+
+MainMinimizeButton.MouseButton1Click:Connect(function()
+    ToggleMainFrame()
 end)
 
 KeyButton.MouseButton1Click:Connect(function()
@@ -283,101 +514,48 @@ KeyTextBox.FocusLost:Connect(function(enterPressed)
     end
 end)
 
-CreateButton("FLY [ВКЛ/ВЫКЛ]", 20, function()
-    FlyEnabled = not FlyEnabled
-    if FlyEnabled then
-        local bodyVelocity = Instance.new("BodyVelocity")
-        bodyVelocity.Name = "OmegaFly"
-        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
-        bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
-        bodyVelocity.Parent = Player.Character.HumanoidRootPart
-    else
-        if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-            if Player.Character.HumanoidRootPart:FindFirstChild("OmegaFly") then
-                Player.Character.HumanoidRootPart.OmegaFly:Destroy()
-            end
-        end
-    end
+-- Create buttons
+CreateButton("FLY", 50, function()
+    ToggleFly()
 end, {FlyEnabled})
 
-CreateButton("SPEED [ВКЛ/ВЫКЛ]", 80, function()
-    SpeedEnabled = not SpeedEnabled
-    if SpeedEnabled then
-        Player.Character.Humanoid.WalkSpeed = 50
-    else
-        Player.Character.Humanoid.WalkSpeed = 16
-    end
+CreateButton("SPEED", 115, function()
+    ToggleSpeed()
 end, {SpeedEnabled})
 
-CreateButton("NOCLIP [ВКЛ/ВЫКЛ]", 140, function()
+CreateButton("NOCLIP", 180, function()
     NoclipEnabled = not NoclipEnabled
 end, {NoclipEnabled})
 
-CreateButton("INF JUMP [ВКЛ/ВЫКЛ]", 200, function()
+CreateButton("INF JUMP", 245, function()
     InfJumpEnabled = not InfJumpEnabled
 end, {InfJumpEnabled})
 
-CreateButton("ESP [ВКЛ/ВЫКЛ]", 260, function()
-    EspEnabled = not EspEnabled
-    if EspEnabled then
-        for _, player in pairs(game:GetService("Players"):GetPlayers()) do
-            if player ~= Player and player.Character then
-                local highlight = Instance.new("Highlight")
-                highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                highlight.OutlineColor = Color3.fromRGB(255, 255, 0)
-                highlight.Parent = player.Character
-                highlights[player] = highlight
-            end
-        end
-    else
-        for player, highlight in pairs(highlights) do
-            if highlight then
-                highlight:Destroy()
-            end
-        end
-        highlights = {}
-    end
+CreateButton("ESP", 310, function()
+    ToggleESP()
 end, {EspEnabled})
 
-CreateButton("TP TO SPAWN", 320, function()
-    Player.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0)
-end, {false})
+CreateButton("ANTI-AFK", 375, function()
+    ToggleAntiAFK()
+end, {AntiAFKEnabled})
 
-local flyConnection
-flyConnection = UIS.InputBegan:Connect(function(input, processed)
-    if processed then return end
-    
-    if input.KeyCode == Enum.KeyCode.Space and FlyEnabled then
-        if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-            if Player.Character.HumanoidRootPart:FindFirstChild("OmegaFly") then
-                Player.Character.HumanoidRootPart.OmegaFly.Velocity = Vector3.new(0, 100, 0)
-            end
-        end
-    elseif input.KeyCode == Enum.KeyCode.LeftShift and FlyEnabled then
-        if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-            if Player.Character.HumanoidRootPart:FindFirstChild("OmegaFly") then
-                Player.Character.HumanoidRootPart.OmegaFly.Velocity = Vector3.new(0, -100, 0)
-            end
-        end
-    end
-end)
-
-UIS.JumpRequest:Connect(function()
-    if InfJumpEnabled then
-        Player.Character.Humanoid:ChangeState("Jumping")
-    end
-end)
-
-RunService.Stepped:Connect(function()
-    if NoclipEnabled and Player.Character then
-        for _, part in pairs(Player.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
-        end
-    end
-end)
-
+-- Update button colors
 for _, btnData in pairs(buttonInstances) do
     updateButtonColor(btnData.button, btnData.enabledRef[1])
 end
+
+-- Обработка смены персонажа
+game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(character)
+    if FlyEnabled then
+        wait(1)
+        ToggleFly()
+        ToggleFly()
+    end
+    if SpeedEnabled then
+        wait(1)
+        ToggleSpeed()
+        ToggleSpeed()
+    end
+end)
+
+print("YT_M1xaILL HUB loaded successfully! 🚀")
