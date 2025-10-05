@@ -4,6 +4,7 @@ local UIS = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
 
 local AccessGranted = false
 if _G.OmegaScriptAccess then
@@ -18,6 +19,58 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "MixaILLGUI"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Функция для создания эффекта тумана
+local function CreateFogEffect(parent)
+    local fog = Instance.new("Frame")
+    fog.Size = UDim2.new(1, 40, 1, 40)
+    fog.Position = UDim2.new(0, -20, 0, -20)
+    fog.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+    fog.BackgroundTransparency = 0.9
+    fog.BorderSizePixel = 0
+    fog.ZIndex = 1
+    fog.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.15, 0)
+    corner.Parent = fog
+    
+    -- Анимация пульсации тумана
+    local fogTween = TweenService:Create(fog, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+        BackgroundTransparency = 0.85
+    })
+    fogTween:Play()
+    
+    return fog
+end
+
+-- Функция для создания эффекта взрыва
+local function CreateExplosionEffect(button)
+    local explosion = Instance.new("Frame")
+    explosion.Size = UDim2.new(0, 10, 0, 10)
+    explosion.Position = UDim2.new(0.5, -5, 0.5, -5)
+    explosion.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+    explosion.BackgroundTransparency = 0.3
+    explosion.BorderSizePixel = 0
+    explosion.ZIndex = 3
+    explosion.Parent = button
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = explosion
+    
+    -- Анимация взрыва
+    local explosionTween = TweenService:Create(explosion, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 100, 0, 100),
+        Position = UDim2.new(0.5, -50, 0.5, -50),
+        BackgroundTransparency = 1
+    })
+    
+    explosionTween:Play()
+    explosionTween.Completed:Connect(function()
+        explosion:Destroy()
+    end)
+end
 
 -- Главная кнопка M
 local MainButton = Instance.new("TextButton")
@@ -35,6 +88,9 @@ local UICorner1 = Instance.new("UICorner")
 UICorner1.CornerRadius = UDim.new(0.2, 0)
 UICorner1.Parent = MainButton
 
+-- Эффект тумана для главной кнопки
+local mainButtonFog = CreateFogEffect(MainButton)
+
 -- Рамка для ввода ключа (видимая сразу)
 local KeyFrame = Instance.new("Frame")
 KeyFrame.Size = UDim2.new(0, 320, 0, 180)
@@ -48,6 +104,9 @@ KeyFrame.Parent = ScreenGui
 local KeyUICorner = Instance.new("UICorner")
 KeyUICorner.CornerRadius = UDim.new(0.1, 0)
 KeyUICorner.Parent = KeyFrame
+
+-- Эффект тумана для KeyFrame
+local keyFrameFog = CreateFogEffect(KeyFrame)
 
 -- Желтая обводка рамки
 local KeyFrameStroke = Instance.new("UIStroke")
@@ -71,6 +130,22 @@ KeyMinimizeButton.Parent = KeyFrame
 local KeyMinimizeCorner = Instance.new("UICorner")
 KeyMinimizeCorner.CornerRadius = UDim.new(0.1, 0)
 KeyMinimizeCorner.Parent = KeyMinimizeButton
+
+-- Кнопка закрытия для KeyFrame
+local KeyCloseButton = Instance.new("TextButton")
+KeyCloseButton.Size = UDim2.new(0, 30, 0, 30)
+KeyCloseButton.Position = UDim2.new(1, -40, 0, 15)
+KeyCloseButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+KeyCloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyCloseButton.Text = "X"
+KeyCloseButton.TextSize = 16
+KeyCloseButton.Font = Enum.Font.GothamBold
+KeyCloseButton.ZIndex = 3
+KeyCloseButton.Parent = KeyFrame
+
+local KeyCloseCorner = Instance.new("UICorner")
+KeyCloseCorner.CornerRadius = UDim.new(0.1, 0)
+KeyCloseCorner.Parent = KeyCloseButton
 
 local KeyLabel = Instance.new("TextLabel")
 KeyLabel.Size = UDim2.new(0, 280, 0, 40)
@@ -142,6 +217,9 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0.1, 0)
 UICorner.Parent = MainFrame
 
+-- Эффект тумана для MainFrame
+local mainFrameFog = CreateFogEffect(MainFrame)
+
 -- Желтая обводка основного меню
 local MainFrameStroke = Instance.new("UIStroke")
 MainFrameStroke.Thickness = 2
@@ -164,6 +242,22 @@ MainMinimizeButton.Parent = MainFrame
 local MainMinimizeCorner = Instance.new("UICorner")
 MainMinimizeCorner.CornerRadius = UDim.new(0.1, 0)
 MainMinimizeCorner.Parent = MainMinimizeButton
+
+-- Кнопка закрытия для MainFrame
+local MainCloseButton = Instance.new("TextButton")
+MainCloseButton.Size = UDim2.new(0, 30, 0, 30)
+MainCloseButton.Position = UDim2.new(1, -40, 0, 10)
+MainCloseButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+MainCloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MainCloseButton.Text = "X"
+MainCloseButton.TextSize = 16
+MainCloseButton.Font = Enum.Font.GothamBold
+MainCloseButton.ZIndex = 3
+MainCloseButton.Parent = MainFrame
+
+local MainCloseCorner = Instance.new("UICorner")
+MainCloseCorner.CornerRadius = UDim.new(0.1, 0)
+MainCloseCorner.Parent = MainCloseButton
 
 -- Свернутое состояние MainFrame
 local MainFrameMinimized = false
@@ -251,6 +345,7 @@ local function ToggleMainFrame()
         for _, btnData in pairs(buttonInstances) do
             btnData.button.Visible = false
         end
+        MainCloseButton.Visible = false
     else
         -- Развернуть
         MainFrame.Size = OriginalMainFrameSize
@@ -260,6 +355,7 @@ local function ToggleMainFrame()
         for _, btnData in pairs(buttonInstances) do
             btnData.button.Visible = true
         end
+        MainCloseButton.Visible = true
     end
 end
 
@@ -278,6 +374,7 @@ local function ToggleKeyFrame()
         KeyLabel.Visible = false
         KeyTextBox.Visible = false
         KeyButton.Visible = false
+        KeyCloseButton.Visible = false
     else
         -- Развернуть
         KeyFrame.Size = OriginalKeyFrameSize
@@ -285,6 +382,7 @@ local function ToggleKeyFrame()
         KeyLabel.Visible = true
         KeyTextBox.Visible = true
         KeyButton.Visible = true
+        KeyCloseButton.Visible = true
     end
 end
 
@@ -481,6 +579,8 @@ MainButton.MouseButton1Click:Connect(function()
     else
         KeyFrame.Visible = not KeyFrame.Visible
     end
+    -- Эффект взрыва при нажатии
+    CreateExplosionEffect(MainButton)
 end)
 
 -- Кнопки свертывания
@@ -490,6 +590,15 @@ end)
 
 MainMinimizeButton.MouseButton1Click:Connect(function()
     ToggleMainFrame()
+end)
+
+-- Кнопки закрытия
+KeyCloseButton.MouseButton1Click:Connect(function()
+    KeyFrame.Visible = false
+end)
+
+MainCloseButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
 end)
 
 KeyButton.MouseButton1Click:Connect(function()
@@ -510,7 +619,7 @@ end)
 
 KeyTextBox.FocusLost:Connect(function(enterPressed)
     if enterPressed then
-        KeyButton.MouseButton1Click:Connect()
+        KeyButton:MouseButton1Click()
     end
 end)
 
